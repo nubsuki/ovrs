@@ -47,6 +47,16 @@ function login() {
             const messageElement = document.getElementById('login-message');
             messageElement.innerText = data.message;
             messageElement.style.color = data.message === 'Login successful!' ? 'green' : 'red';
+
+            if (data.message === 'Login Successful') {
+                // Store the session token in localStorage
+                localStorage.setItem('sessionToken', data.sessionToken);
+                console.log('Session Token:', data.sessionToken);
+
+                // Redirect to a protected page or update the UI
+                window.location.href = 'index.html'; // Example redirect
+            }
+
         })
         .catch(error => console.error('Error:', error));
 }
