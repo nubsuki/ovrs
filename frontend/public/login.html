@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Register & Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+<div class="auth-container">
+    <div class="cont">
+        <div class="form sign-in">
+            <h2>Welcome back,</h2>
+            <label>
+                <span>Username</span>
+                <input type="email" id="login-username" placeholder="Enter Username or Email" />
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" id="login-password" placeholder="Enter Password" />
+            </label>
+            <button type="button" onclick="login()" class="submit">Sign In</button>
+            <div id="login-message"></div>
+        </div>
+        <div class="sub-cont">
+            <div class="img">
+                <div class="img__text m--up">
+                    <h2>New here?</h2>
+                    <p>Join us today to discover amazing deals and travel effortlessly!</p>
+                </div>
+                <div class="img__text m--in">
+                    <h2>One of us?</h2>
+                    <p>If you already has an account, just sign in. We've missed you!</p>
+                </div>
+                <div class="img__btn">
+                    <span class="m--up">Sign Up</span>
+                    <span class="m--in">Sign In</span>
+                </div>
+            </div>
+            <div class="form sign-up">
+                <h2>Feel at home,<br>wherever your travels take you.</h2>
+                <label>
+                    <span>Name</span>
+                    <input type="text" id="reg-username" placeholder="Enter Username" />
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input type="email" id="reg-email" placeholder="Enter Email" />
+                </label>
+                <label>
+                    <span>Password</span>
+                    <input type="password" id="reg-password" placeholder="Enter Password" />
+                </label>
+                <button type="button" onclick="register()" class="submit">Sign Up</button>
+                <div id="register-message"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="login.js"></script>
+</body>
+</html>
