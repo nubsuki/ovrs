@@ -1,43 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f4f4f4;
-      padding: 50px;
-    }
-    .dashboard-container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      display: inline-block;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #c82333;
-    }
-  </style>
+  <link rel="stylesheet" href="index.css">
+  <title>MCC</title>
 </head>
-<body>
-<div class="dashboard-container">
-  <h1>Welcome to the Dashboard</h1>
-  <p>You are logged in!</p>
-  <button onclick="logout()">Logout</button>
-</div>
 
-<script src="index.js"></script>
+<body>
+  <header>
+    <div class="container">
+      <nav id="navigation">
+        <a href="#" class="logo">Mega City Cab</a>
+        <a aria-label="mobile menu" class="nav-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </a>
+        <ul class="menu-left">
+          <li><a href="index.html">Servies</a></li>
+          <li><a href="#">Orders</a></li>
+          <li><a href="#">Profile</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="booking-container">
+    <!-- Step 1: Select Vehicle -->
+    <div id="step1" class="step active">
+      <h2>Select a Vehicle</h2>
+      <div class="vehicle-list">
+        <div class="vehicle" onclick="selectVehicle('Sedan')">
+          <div class="vehicle-content">
+            <img src="Assets/sedan.jpg" alt="Sedan" class="vehicle-img">
+          <p>Sedan</p>
+          </div>
+        </div>
+        <div class="vehicle" onclick="selectVehicle('SUV')">
+          <div class="vehicle-content">
+            <img src="Assets/suv.jpg" alt="SUV" class="vehicle-img">
+          <p>SUV</p>
+          </div>
+        </div>
+        <div class="vehicle" onclick="selectVehicle('Luxury')">
+          <div class="vehicle-content">
+            <img src="Assets/Luxury.jpg" alt="Luxury" class="vehicle-img">
+            <p>Luxury</p>
+          </div>
+        </div>
+      </div>
+      <div id="car-selection" style="display: none;">
+        <label for="car-dropdown">Select a Car:</label>
+        <select id="car-dropdown" onchange="selectCar()">
+          <option value="">Select</option>
+        </select>
+      </div>
+      <button onclick="nextStep(2)">Next</button>
+    </div>
+
+    <!-- Step 2: Enter Details -->
+    <div id="step2" class="step">
+      <h2>Enter Your Details</h2>
+      <input type="text" id="customerName" placeholder="Your Name">
+      <input type="text" id="phoneNumber" placeholder="Phone Number">
+      <input type="date" id="bookingDate">
+      <input type="time" id="pickupTime" placeholder="Pickup Time">
+      <input type="text" id="pickupLocation" placeholder="Pickup Location">
+      <select id="distanceOrTime" onchange="toggleDistanceTime()">
+        <option value="distance">Distance (Kilometers)</option>
+        <option value="time">Time (Hours)</option>
+      </select>
+      <input type="number" id="distance" placeholder="Distance in Kilometers">
+      <input type="number" id="time" placeholder="Time in Hours" style="display: none;">
+      <div class="button-group">
+        <button onclick="prevStep(1)">Back</button>
+        <button onclick="nextStep(3)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm Booking -->
+    <div id="step3" class="step">
+      <h2>Confirm Your Booking</h2>
+      <p><strong>Vehicle:</strong> <span id="confirmVehicle"></span></p>
+      <p><strong>Name:</strong> <span id="confirmName"></span></p>
+      <p><strong>Phone:</strong> <span id="confirmPhone"></span></p>
+      <p><strong>Date:</strong> <span id="confirmDate"></span></p>
+      <p><strong>Pickup Location:</strong> <span id="confirmPickup"></span></p>
+      <p><strong>Distance/Time:</strong> <span id="confirmDistanceTime"></span></p>
+      <p><strong>Total Cost:</strong> $<span id="confirmCost"></span></p>
+      <button onclick="prevStep(2)">Back</button>
+      <button onclick="submitBooking()">Confirm</button>
+    </div>
+
+    <!-- Step 4: Booking Confirmation -->
+    <div id="step4" class="step">
+      <h2>Booking Confirmed!</h2>
+      <p>Your order ID is: <strong id="orderId"></strong></p>
+      <p>Thank you for booking with us.</p>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="index.js"></script>
 </body>
+
 </html>

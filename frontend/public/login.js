@@ -8,6 +8,23 @@ function register() {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
 
+    // Validate required fields
+    const requiredFields = {
+        'Username': document.getElementById('reg-username').value,
+        'Email': document.getElementById('reg-email').value,
+        'Password': document.getElementById('reg-password').value,
+    };
+
+    // Check all required fields first
+    let isValid = true;
+    for (const [field, value] of Object.entries(requiredFields)) {
+        if (!value || value.trim() === '') {
+            alert(`Please enter ${field}`);
+            isValid = false;
+            return;
+        }
+    }
+
     fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,23 +57,19 @@ function login() {
     fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies in the request
         body: JSON.stringify({ username: usernameOrEmail, password })
     })
         .then(response => response.json())
         .then(data => {
             const messageElement = document.getElementById('login-message');
             messageElement.innerText = data.message;
-            messageElement.style.color = data.message === 'Login successful!' ? 'green' : 'red';
+            messageElement.style.color = data.message === 'Login Successful' ? 'green' : 'red';
 
             if (data.message === 'Login Successful') {
-                // Store the session token in localStorage
-                localStorage.setItem('sessionToken', data.sessionToken);
-                console.log('Session Token:', data.sessionToken);
-
                 // Redirect to a protected page or update the UI
                 window.location.href = 'index.html'; // Example redirect
             }
-
         })
         .catch(error => console.error('Error:', error));
 }
