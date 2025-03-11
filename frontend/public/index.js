@@ -1,15 +1,31 @@
-// TOGGLE HAMBURGER & COLLAPSE NAV
-$('.nav-toggle').on('click', function() {
-    $(this).toggleClass('open');
-    $('.menu-left').toggleClass('collapse');
-});
-// REMOVE X & COLLAPSE NAV ON ON CLICK
-$('.menu-left a').on('click', function() {
-    $('.nav-toggle').removeClass('open');
-    $('.menu-left').removeClass('collapse');
+// Mobile menu toggle
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
 });
 
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        navLinks.classList.remove('active');
+    }
+});
 
+document.addEventListener('DOMContentLoaded', function() {
+    const bookNowButton = document.querySelector('.book-now');
+    bookNowButton.addEventListener('click', function() {
+        const bookingSection = document.querySelector('.booking-section');
+        const headerOffset = 100;
+        const elementPosition = bookingSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    });
+});
 //validate-session
 document.addEventListener('DOMContentLoaded', () => {
     fetch('http://localhost:8080/api/auth/validate-session', {
@@ -275,3 +291,20 @@ function selectCar() {
             alert('Failed to fetch car details. Please try selecting again.');
         });
 }
+
+function updateStatistics() {
+    fetch('http://localhost:8080/api/statistics', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('userCount').textContent = `Registered Users: ${data.userCount}`;
+        document.getElementById('orderCount').textContent = `Ordered Vehicles: ${data.orderCount}`;
+        document.getElementById('vehicleCount').textContent = `Registered Cars: ${data.vehicleCount}`;
+    })
+    .catch(error => console.error('Error fetching statistics:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateStatistics();
+});

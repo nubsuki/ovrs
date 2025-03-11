@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Mega City Cab</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>Mega City Cab</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="about.html" class="active"><i class="fas fa-info-circle"></i> About</a>
+            <a href="#" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </div>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="about-content">
+        <section class="about-section">
+            <h2>About Mega City Cab</h2>
+            <p>Mega City Cab is your trusted partner in transportation, providing reliable and comfortable cab services since 2020. We pride ourselves on our professional drivers, well-maintained vehicles, and exceptional customer service.</p>
+            
+            <div class="about-features">
+                <div class="about-feature">
+                    <i class="fas fa-users"></i>
+                    <h3>Expert Drivers</h3>
+                    <p>Our drivers are professionally trained and vetted for your safety</p>
+                </div>
+                <div class="about-feature">
+                    <i class="fas fa-car"></i>
+                    <h3>Modern Fleet</h3>
+                    <p>Well-maintained vehicles for a comfortable journey</p>
+                </div>
+                <div class="about-feature">
+                    <i class="fas fa-headset"></i>
+                    <h3>24/7 Support</h3>
+                    <p>Round-the-clock customer service for your convenience</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <h2>Contact Us</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Phone</h3>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>support@megacitycab.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <div>
+                            <h3>Address</h3>
+                            <p>123 Ocean View Road<br>Colombo 04, Sri Lanka.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="contact-form">
+                    <h3>Send us a message</h3>
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Mega City Cab. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

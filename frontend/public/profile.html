@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Mega City Cab</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>Mega City Cab</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="profile.html" class="active"><i class="fas fa-user"></i> Profile</a>
+            <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+            <a href="#" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </div>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <main class="profile-content">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="profile-info">
+                <h2>User</h2>
+                <p>Orders: </p>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <button class="tab-btn active" data-tab="orders">Order History</button>
+        </div>
+
+        <div class="tab-content" id="orders">
+            <div class="order-list">
+                <div class="order-card">
+                    <div class="order-header">
+                        <h3>OrderID #1234</h3>
+                        <span class="order-date"></span>
+                    </div>
+                    <div class="order-details">
+                        <p><i class="fa-solid fa-car"></i> Vehicle Name: </p>
+                        <p><i class="fa-solid fa-user"></i> Name: </p>
+                        <p><i class="fa-solid fa-phone"></i> Contact: </p>
+                        <p><i class="fas fa-map-marker-alt"></i> Pick up location: </p>
+                        <p><i class="fa-solid fa-clock"></i> Time: </p>
+                        <p><i class="fa-solid fa-hand-holding-dollar"></i> price: </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Mega City Cab. All rights reserved.</p>
+    </footer>
+
+    <script src="profile.js"></script>
+</body>
+</html> 
