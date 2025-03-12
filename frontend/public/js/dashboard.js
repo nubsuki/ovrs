@@ -21,8 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchDrivers();
     fetchVehicleTypes();
     fetchPendingBookings();
+    fetchTotalRevenue();
 
-    // Add search functionality for pending bookings
+    //search functionality for pending bookings
     const pendingOrderSearch = document.getElementById('pendingOrderSearch');
     pendingOrderSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -71,6 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         });
 });
+
+function fetchTotalRevenue() {
+    fetch('http://localhost:8080/api/bookings/total-revenue', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const revenueElement = document.getElementById('Revenue');
+        revenueElement.textContent = `Total Revenue: $${data.totalRevenue.toFixed(2)}`;
+    })
+    .catch(error => {
+        console.error('Error fetching revenue:', error);
+        const revenueElement = document.getElementById('Revenue');
+        revenueElement.textContent = 'Total Revenue: Error loading';
+    });
+}
 
 function searchUser() {
     const email = document.getElementById('userEmail').value;
@@ -625,7 +642,7 @@ function deleteVehicle(id) {
 }
 
 function cancelBooking(orderId) {
-    // First check if user is admin
+    // First checks if user is admin
     fetch('http://localhost:8080/api/auth/validate-session', {
         credentials: 'include'
     })

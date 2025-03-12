@@ -15,8 +15,7 @@ public class Vehicle {
     private String type; // Sedan, SUV, Luxury
 
     @Column(nullable = false)
-    private String name; // Car name (e.g., Toyota Camry, BMW X5)
-
+    private String name; // Car name
     @Column(nullable = false)
     private double distancePrice; // Price per kilometer
 

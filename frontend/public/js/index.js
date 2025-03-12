@@ -109,7 +109,6 @@ function nextStep(step) {
         };
     }
 
-    // Only change the active step if we haven't returned early due to validation
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById(`step${step}`).classList.add('active');
 

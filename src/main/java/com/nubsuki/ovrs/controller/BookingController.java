@@ -53,6 +53,14 @@ public class BookingController {
         return ResponseEntity.ok(savedBooking);
     }
 
+    @GetMapping("/total-revenue")
+    public ResponseEntity<Map<String, Double>> getTotalRevenue() {
+        Double totalRevenue = bookingRepository.findAll().stream()
+                .mapToDouble(Booking::getTotalCost)
+                .sum();
+        return ResponseEntity.ok(Map.of("totalRevenue", totalRevenue));
+    }
+
     @GetMapping("/by-type")
     public ResponseEntity<List<Vehicle>> getVehiclesByType(@RequestParam String type) {
         List<Vehicle> vehicles = vehicleRepository.findByTypeAndStatus(type, "AVAILABLE");

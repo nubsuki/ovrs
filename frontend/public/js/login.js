@@ -67,8 +67,7 @@ function login() {
             messageElement.style.color = data.message === 'Login Successful' ? 'green' : 'red';
 
             if (data.message === 'Login Successful') {
-                // Redirect to a protected page or update the UI
-                window.location.href = 'index.html'; // Example redirect
+                window.location.href = 'index.html';
             }
         })
         .catch(error => console.error('Error:', error));
