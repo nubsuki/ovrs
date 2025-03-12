@@ -11,7 +11,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     List<Vehicle> findByType(String type); // Fetch vehicles by type
     @Query("SELECT DISTINCT v.type FROM Vehicle v")
     List<String> findDistinctTypes();
-    List<Vehicle> findByTypeAndAvailable(String type, boolean available);
+    List<Vehicle> findByTypeAndStatus(String type, String status);
     Vehicle findByDriverEmail(String driverEmail);
 
 }

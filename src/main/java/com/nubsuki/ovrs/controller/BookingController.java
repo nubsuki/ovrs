@@ -54,9 +54,9 @@ public class BookingController {
     }
 
     @GetMapping("/by-type")
-    public List<Vehicle> getVehiclesByType(@RequestParam String type) {
-        List<Vehicle> vehicles = vehicleRepository.findByTypeAndAvailable(type, true);
-        return vehicles;
+    public ResponseEntity<List<Vehicle>> getVehiclesByType(@RequestParam String type) {
+        List<Vehicle> vehicles = vehicleRepository.findByTypeAndStatus(type, "AVAILABLE");
+        return ResponseEntity.ok(vehicles);
     }
 
     @GetMapping("/user-info")
