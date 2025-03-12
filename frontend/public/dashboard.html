@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>MCC - Your Reliable Cab Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>Mega City Cab</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+            <a href="#" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </div>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+    <main class="dashboard-content">
+        <section class="staff-management">
+            <h2>User Management</h2>
+            <div class="add-staff-form">
+                <h3>Manage Members</h3>
+                <div class="form-group">
+                    <label for="userEmail">User Email:</label>
+                    <div class="search-container">
+                        <input type="email" id="userEmail" placeholder="Enter user email"
+                            oninput="handleEmailSearch(event)">
+                        <div id="emailSuggestions" class="suggestions-dropdown"></div>
+                    </div>
+                </div>
+                <div id="searchResult" style="display: none;" class="user-result">
+                    <h4>User Details:</h4>
+                    <p>Username: <span id="resultUsername"></span></p>
+                    <p>Email: <span id="resultEmail"></span></p>
+                    <p>Current Role: <span id="resultRole"></span></p>
+                    <div class="action-buttons">
+                        <button onclick="deleteUser()" class="delete-btn"><i class="fas fa-trash"></i> Delete
+                            User</button>
+                    </div>
+                </div>
+                <div class="form-group" style="display: none;" id="roleUpdateForm">
+                    <label for="roleSelect">New Role:</label>
+                    <select id="roleSelect">
+                    </select>
+                    <button onclick="updateUserRole()">Update Role</button>
+                </div>
+                <div id="updateMessage"></div>
+            </div>
+        </section>
+        <section class="Tables">
+            <h2>Booking Management</h2>
+            <div class="search-booking">
+                <input type="text" id="orderSearchInput" placeholder="Search by Order ID...">
+            </div>
+            <table class="rwd-table">
+                <thead>
+                    <tr>
+                        <th>OrderId</th>
+                        <th>Booking Date</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                        <th>Phone Number</th>
+                        <th>Pickup Location</th>
+                        <th>Pickup Time</th>
+                        <th>Vehicale</th>
+                        <th>Total Cost</th>
+                        <th>Cancel</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingTableBody">
+                    <!-- Booking data will be populated here -->
+                </tbody>
+            </table>
+        </section>
+        <section class="Tables">
+            <h2>Booking Management</h2>
+            <div class="search-drivers">
+                <input type="text" id="" placeholder="Search by Emp ID...">
+            </div>
+            <table class="rwd-table">
+                <thead>
+                    <tr>
+                        <th>Employee Id</th>
+                        <th>Booking Date</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                        <th>Phone Number</th>
+                        <th>Pickup Location</th>
+                        <th>Pickup Time</th>
+                        <th>Vehicale</th>
+                        <th>Total Cost</th>
+                        <th>Cancel</th>
+                    </tr>
+                </thead>
+                <tbody id="">
+                    <!-- Booking data will be populated here -->
+                </tbody>
+            </table>
+        </section>
+        <section class="Tables">
+            <h2>Cancelled Booking Management</h2>
+            <div class="search-booking">
+                <input type="text" id="cancelledOrderSearchInput"  placeholder="Search by Order ID...">
+            </div>
+            <table class="rwd-table">
+                <thead>
+                    <tr>
+                        <th>OrderId</th>
+                        <th>Booking Date</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                        <th>Phone Number</th>
+                        <th>Pickup Location</th>
+                        <th>Pickup Time</th>
+                        <th>Vehicale</th>
+                        <th>Total Cost</th>
+                        <th>Cancelled At</th>
+                    </tr>
+                </thead>
+                <tbody id="cancelledBookingTableBody">
+                    <!-- Cancelled booking data will be populated here -->
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

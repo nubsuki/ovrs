@@ -13,9 +13,9 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const bookNowButton = document.querySelector('.book-now');
-    bookNowButton.addEventListener('click', function() {
+    bookNowButton.addEventListener('click', function () {
         const bookingSection = document.querySelector('.booking-section');
         const headerOffset = 100;
         const elementPosition = bookingSection.getBoundingClientRect().top;
@@ -26,41 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-//validate-session
-document.addEventListener('DOMContentLoaded', () => {
-    fetch('http://localhost:8080/api/auth/validate-session', {
-        credentials: 'include' // Include cookies in the request
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === 'Session valid') {
-                console.log('User:', data.username, 'Role:', data.role);
-                // Update the UI to show the user is logged in
-            } else {
-                window.location.href = 'login.html'; // Redirect to login page
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.location.href = 'login.html'; // Redirect to login page
-        });
-});
-
-function logout() {
-    fetch('http://localhost:8080/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include' // Include cookies in the request
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message);
-            window.location.href = 'login.html'; // Redirect to the login page
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Logout failed. Please try again.');
-        });
-}
 
 
 let selectedVehicle = '';
@@ -70,7 +35,7 @@ function selectVehicle(vehicle) {
     selectedVehicle = vehicle;
     document.querySelectorAll('.vehicle').forEach(v => v.style.borderColor = '#ccc');
     event.currentTarget.style.borderColor = '#28a745';
-    
+
     // Show and populate the car dropdown when a vehicle type is selected
     selectVehicleType(vehicle);
 }
@@ -170,67 +135,85 @@ function calculateCost() {
     if (!selectedCar) {
         return '0.00';
     }
-    
+
     const distanceOrTime = bookingDetails.distanceOrTime === 'distance' ?
         parseFloat(bookingDetails.distance) : parseFloat(bookingDetails.time);
-    
+
     const price = bookingDetails.distanceOrTime === 'distance' ?
         selectedCar.distancePrice : selectedCar.timePrice;
-    
+
     return (price * distanceOrTime).toFixed(2);
 }
 
 function submitBooking() {
-    // Validate that a car is selected
-    if (!selectedCar) {
-        alert('Please select a car before proceeding');
-        return;
-    }
-
-    const booking = {
-        customerName: bookingDetails.name,
-        phoneNumber: bookingDetails.phone,
-        bookingDate: bookingDetails.date,
-        pickupTime: bookingDetails.pickupTime,
-        pickupLocation: bookingDetails.pickup,
-        vehicleName: selectedCar.name,
-        distance: bookingDetails.distanceOrTime === 'distance' ? parseFloat(bookingDetails.distance) : 0,
-        time: bookingDetails.distanceOrTime === 'time' ? parseFloat(bookingDetails.time) : 0,
-        totalCost: parseFloat(calculateCost()),
-        distancePrice: selectedCar.distancePrice,
-        timePrice: selectedCar.timePrice
-    };
-
-    // Validate all required fields
-    const requiredFields = ['customerName', 'phoneNumber', 'bookingDate', 'pickupTime', 'pickupLocation', 'vehicleName'];
-    for (const field of requiredFields) {
-        if (!booking[field]) {
-            alert(`Please fill in all required fields (${field} is missing)`);
-            return;
-        }
-    }
-
-    fetch('http://localhost:8080/api/bookings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(booking)
+    // First validate session
+    fetch('http://localhost:8080/api/auth/validate-session', {
+        credentials: 'include'
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            document.getElementById('orderId').innerText = data.orderId;
-            nextStep(4);
+            if (data.message !== 'Session valid') {
+                alert('Please log in to make a booking');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Continue with existing booking submission if session is valid
+            if (!selectedCar) {
+                alert('Please select a car before proceeding');
+                return;
+            }
+
+            const booking = {
+                customerName: bookingDetails.name,
+                phoneNumber: bookingDetails.phone,
+                bookingDate: bookingDetails.date,
+                pickupTime: bookingDetails.pickupTime,
+                pickupLocation: bookingDetails.pickup,
+                vehicleName: selectedCar.name,
+                distance: bookingDetails.distanceOrTime === 'distance' ? parseFloat(bookingDetails.distance) : 0,
+                time: bookingDetails.distanceOrTime === 'time' ? parseFloat(bookingDetails.time) : 0,
+                totalCost: parseFloat(calculateCost()),
+                distancePrice: selectedCar.distancePrice,
+                timePrice: selectedCar.timePrice
+            };
+
+            // Validate all required fields
+            const requiredFields = ['customerName', 'phoneNumber', 'bookingDate', 'pickupTime', 'pickupLocation', 'vehicleName'];
+            for (const field of requiredFields) {
+                if (!booking[field]) {
+                    alert(`Please fill in all required fields (${field} is missing)`);
+                    return;
+                }
+            }
+
+            fetch('http://localhost:8080/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(booking)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('orderId').innerText = data.orderId;
+                    nextStep(4);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to submit booking. Please try again.');
+                });
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to submit booking. Please try again.');
+            console.error('Session validation error:', error);
+            alert('Please log in to make a booking');
+            window.location.href = 'login.html';
         });
 }
 
@@ -245,7 +228,7 @@ function selectVehicleType(type) {
         .then(data => {
             const dropdown = document.getElementById('car-dropdown');
             dropdown.innerHTML = ''; // Clear previous options
-            
+
 
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
@@ -261,7 +244,7 @@ function selectVehicleType(type) {
                 dropdown.appendChild(option);
             });
             document.getElementById('car-selection').style.display = 'block';
-            
+
             // Reset selectedCar when changing vehicle type
             selectedCar = null;
         })
@@ -296,15 +279,15 @@ function updateStatistics() {
     fetch('http://localhost:8080/api/statistics', {
         credentials: 'include'
     })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('userCount').textContent = `Registered Users: ${data.userCount}`;
-        document.getElementById('orderCount').textContent = `Ordered Vehicles: ${data.orderCount}`;
-        document.getElementById('vehicleCount').textContent = `Registered Cars: ${data.vehicleCount}`;
-    })
-    .catch(error => console.error('Error fetching statistics:', error));
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('userCount').textContent = `Registered Users: ${data.userCount}`;
+            document.getElementById('orderCount').textContent = `Ordered Vehicles: ${data.orderCount}`;
+            document.getElementById('vehicleCount').textContent = `Registered Cars: ${data.vehicleCount}`;
+        })
+        .catch(error => console.error('Error fetching statistics:', error));
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     updateStatistics();
 });

@@ -1,5 +1,6 @@
 package com.nubsuki.ovrs.controller;
 
+import com.nubsuki.ovrs.model.Role;
 import com.nubsuki.ovrs.model.User;
 import com.nubsuki.ovrs.repository.UserRepository;
 import com.nubsuki.ovrs.service.UserService;
@@ -13,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:63342")
 @RestController
@@ -115,4 +117,176 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("message", "Invalid session"));
     }
+
+    @PostMapping("/search-user")
+    public ResponseEntity<Map<String, Object>> searchUser(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        String email = request.get("email");
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Get all roles
+            List<String> availableRoles = Arrays.stream(Role.values())
+                    .map(Role::name)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User found");
+            response.put("username", user.getUsername());
+            response.put("email", user.getEmail());
+            response.put("role", user.getRole().toString());
+            response.put("availableRoles", availableRoles);
+
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found"));
+        }
+    }
+
+    @PostMapping("/search-emails")
+    public ResponseEntity<Map<String, Object>> searchEmails(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        String searchTerm = request.get("searchTerm");
+        List<User> users = userRepository.findByEmailContainingIgnoreCase(searchTerm);
+
+        List<Map<String, String>> userList = users.stream()
+                .map(user -> Map.of(
+                        "email", user.getEmail(),
+                        "username", user.getUsername()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("users", userList));
+    }
+
+    @PostMapping("/update-role")
+    public ResponseEntity<Map<String, Object>> updateUserRole(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        // Update user role
+        String email = request.get("email");
+        String role = request.get("role");
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found"));
+        }
+
+        User user = userOptional.get();
+        try {
+            user.setRole(Role.valueOf(role));
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Role updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Invalid role"));
+        }
+    }
+
+    @PostMapping("/delete-user")
+    public ResponseEntity<Map<String, Object>> deleteUser(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        String email = request.get("email");
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Prevent admin from deleting themselves
+            if (user.getEmail().equals(adminUser.getEmail())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Cannot delete your own account"));
+            }
+
+            userRepository.delete(user);
+            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found"));
+        }
+    }
+
 }

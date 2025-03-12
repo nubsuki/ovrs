@@ -42,7 +42,7 @@ public class BookingService {
 
     private String generateOrderId() {
         Random random = new Random();
-        int orderId = 1000 + random.nextInt(9000); // Generates a 4-digit number
+        int orderId = 1000 + random.nextInt(90000); // Generates a number
         return String.valueOf(orderId);
     }
 

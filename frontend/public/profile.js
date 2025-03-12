@@ -1,3 +1,17 @@
+// Mobile menu toggle
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        navLinks.classList.remove('active');
+    }
+});
 
 //validate-session
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,7 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (data.message === 'Session valid') {
                 console.log('User:', data.username, 'Role:', data.role);
-                // Update the UI to show the user is logged in
+                // Show/hide dashboard button based on role
+                const dashboardButton = document.querySelector('.profile-header button');
+                if (data.role === 'ADMIN') {
+                    dashboardButton.style.display = 'block';
+                    dashboardButton.onclick = () => window.location.href = 'dashboard.html';
+                } else {
+                    dashboardButton.style.display = 'none';
+                }
             } else {
                 window.location.href = 'login.html'; // Redirect to login page
             }
@@ -72,6 +93,9 @@ async function loadOrderHistory() {
         orderList.innerHTML = ''; // Clear existing orders
         
         bookings.forEach(booking => {
+            const pickupDateTime = new Date(booking.bookingDate + 'T' + booking.pickupTime);
+            const canCancel = new Date() < new Date(pickupDateTime - 3600000); // 1 hour in milliseconds
+
             const orderCard = `
                 <div class="order-card">
                     <div class="order-header">
@@ -85,6 +109,9 @@ async function loadOrderHistory() {
                         <p><i class="fas fa-map-marker-alt"></i> Pick up location: ${booking.pickupLocation}</p>
                         <p><i class="fa-solid fa-clock"></i> Time: ${booking.pickupTime}</p>
                         <p><i class="fa-solid fa-hand-holding-dollar"></i> Price: $${booking.totalCost.toFixed(2)}</p>
+                        ${canCancel ? `<button class="cancel-btn" onclick="cancelBooking('${booking.orderId}')">
+                            <i class="fas fa-times"></i> Cancel Booking
+                        </button>` : ''}
                     </div>
                 </div>
             `;
@@ -99,3 +126,26 @@ async function loadOrderHistory() {
     }
 }
 
+async function cancelBooking(orderId) {
+    if (!confirm('Are you sure you want to cancel this booking?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/bookings/cancel/${orderId}`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            alert('Booking cancelled successfully');
+            loadOrderHistory(); // Refresh the order list
+        } else {
+            const text = await response.text();
+            alert(text || 'Failed to cancel booking');
+        }
+    } catch (error) {
+        console.error('Error cancelling booking:', error);
+        alert('Failed to cancel booking');
+    }
+}
