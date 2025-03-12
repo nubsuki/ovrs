@@ -22,4 +22,20 @@ public class Vehicle {
 
     @Column(nullable = false)
     private double timePrice; // Price per hour
+
+    @Column(name = "driver_email", nullable = false)
+    private String driverEmail;
+
+    @Column(name = "status" , nullable = false)
+    private String status = "NOT_AVAILABLE"; // Default value
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
 }

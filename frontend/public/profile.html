@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Mega City Cab</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -33,28 +33,24 @@
                 <p>Orders: </p>
             </div>
             <button style="display: none;"><i class="fas fa-chart-line"></i> Dashboard</button>
+            <button style="display: none;" class="availability-btn" onclick="toggleAvailability()">
+                <i class="fas fa-toggle-off"></i> Not Available
+            </button>
         </div>
 
         <div class="profile-tabs">
             <button class="tab-btn active" data-tab="orders">Order History</button>
+            <button class="tab-btn " data-tab="assigned-orders">Assing Orders</button>
         </div>
 
         <div class="tab-content" id="orders">
             <div class="order-list">
-                <div class="order-card">
-                    <div class="order-header">
-                        <h3>OrderID #1234</h3>
-                        <span class="order-date"></span>
-                    </div>
-                    <div class="order-details">
-                        <p><i class="fa-solid fa-car"></i> Vehicle Name: </p>
-                        <p><i class="fa-solid fa-user"></i> Name: </p>
-                        <p><i class="fa-solid fa-phone"></i> Contact: </p>
-                        <p><i class="fas fa-map-marker-alt"></i> Pick up location: </p>
-                        <p><i class="fa-solid fa-clock"></i> Time: </p>
-                        <p><i class="fa-solid fa-hand-holding-dollar"></i> price: </p>
-                    </div>
-                </div>
+                <!-- Order history will be dynamically added here -->
+            </div>
+        </div>
+        <div class="tab-content" id="assigned-orders">
+            <div class="order-list" id="assigned-bookings-list">
+                <!-- Assigned bookings will be dynamically added here -->
             </div>
         </div>
     </main>
@@ -63,6 +59,6 @@
         <p>&copy; 2024 Mega City Cab. All rights reserved.</p>
     </footer>
 
-    <script src="profile.js"></script>
+    <script src="js/profile.js"></script>
 </body>
 </html> 

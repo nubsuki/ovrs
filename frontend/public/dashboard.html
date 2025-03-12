@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <title>MCC - Your Reliable Cab Service</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -57,6 +57,32 @@
             </div>
         </section>
         <section class="Tables">
+            <h2>Assing Booking </h2>
+            <div class="search-booking">
+                <input type="text" id="pendingOrderSearch" placeholder="Search by Order ID...">
+            </div>
+            <table class="rwd-table">
+                <thead>
+                    <tr>
+                        <th>OrderId</th>
+                        <th>Booking Date</th>
+                        <th>Customer Name</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                        <th>Phone Number</th>
+                        <th>Pickup Location</th>
+                        <th>Pickup Time</th>
+                        <th>Vehicale</th>
+                        <th>Total Cost</th>
+                        <th>Assing</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingBookingTableBody">
+                    <!-- Booking data will be populated here -->
+                </tbody>
+            </table>
+        </section>
+        <section class="Tables">
             <h2>Booking Management</h2>
             <div class="search-booking">
                 <input type="text" id="orderSearchInput" placeholder="Search by Order ID...">
@@ -75,7 +101,7 @@
                         <th>Pickup Time</th>
                         <th>Vehicale</th>
                         <th>Total Cost</th>
-                        <th>Cancel</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="bookingTableBody">
@@ -84,31 +110,42 @@
             </table>
         </section>
         <section class="Tables">
-            <h2>Booking Management</h2>
-            <div class="search-drivers">
-                <input type="text" id="" placeholder="Search by Emp ID...">
+            <h2>Vehicle Management</h2>
+            <div class="add-vehicle-form">
+                <h3>Add New Vehicle</h3>
+                <div class="form-group">
+                    <input type="text" id="vehicleName" placeholder="Vehicle Name (e.g., Toyota Camry)">
+                    <select id="vehicleType">
+                        <option value="">Select Type</option>
+                    </select>
+                    <input type="number" id="distancePrice" placeholder="Price per Kilometer">
+                    <input type="number" id="timePrice" placeholder="Price per Hour">
+                    <div class="search-container">
+                        <input type="email" id="driverEmail" placeholder="Search driver email" oninput="handleDriverSearch(event)">
+                        <div id="driverSuggestions" class="suggestions-dropdown"></div>
+                    </div>
+                    </select>
+                    <button onclick="addVehicle()" class="add-btn">Add Vehicle</button>
+                </div>
             </div>
-            <table class="rwd-table">
-                <thead>
-                    <tr>
-                        <th>Employee Id</th>
-                        <th>Booking Date</th>
-                        <th>Customer Name</th>
-                        <th>Email</th>
-                        <th>Distance</th>
-                        <th>Time</th>
-                        <th>Phone Number</th>
-                        <th>Pickup Location</th>
-                        <th>Pickup Time</th>
-                        <th>Vehicale</th>
-                        <th>Total Cost</th>
-                        <th>Cancel</th>
-                    </tr>
-                </thead>
-                <tbody id="">
-                    <!-- Booking data will be populated here -->
-                </tbody>
-            </table>
+            <div class="vehicle-list">
+                <table class="rwd-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Price/km</th>
+                            <th>Price/hr</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTableBody">
+                        <!-- Vehicle data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
         </section>
         <section class="Tables">
             <h2>Cancelled Booking Management</h2>
@@ -139,7 +176,7 @@
         </section>
 
     </main>
-    <script src="dashboard.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 
 </html>

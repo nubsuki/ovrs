@@ -17,6 +17,22 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchBookings();
     setupOrderSearch();
     fetchCancelledBookings();
+    fetchVehicles();
+    fetchDrivers();
+    fetchVehicleTypes();
+    fetchPendingBookings();
+
+    // Add search functionality for pending bookings
+    const pendingOrderSearch = document.getElementById('pendingOrderSearch');
+    pendingOrderSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#pendingBookingTableBody tr');
+        
+        rows.forEach(row => {
+            const orderId = row.cells[0].textContent.toLowerCase();
+            row.style.display = orderId.includes(searchTerm) ? '' : 'none';
+        });
+    });
 });
 
 function logout() {
@@ -279,6 +295,66 @@ function setupOrderSearch() {
     });
 }
 
+function fetchPendingBookings() {
+    fetch('http://localhost:8080/api/bookings/pending', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const tableBody = document.getElementById('pendingBookingTableBody');
+        tableBody.innerHTML = '';
+
+        data.bookings.forEach(booking => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${booking.orderId}</td>
+                <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                <td>${booking.customerName}</td>
+                <td>${booking.distance} km</td>
+                <td>${booking.time} hr</td>
+                <td>${booking.phoneNumber}</td>
+                <td>${booking.pickupLocation}</td>
+                <td>${booking.pickupTime}</td>
+                <td>${booking.vehicleName}</td>
+                <td>$${booking.totalCost.toFixed(2)}</td>
+                <td>
+                    <button onclick="assignBooking('${booking.orderId}')" class="assign-btn">
+                        <i class="fas fa-check"></i> Assign
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error fetching pending bookings:', error));
+}
+
+// Function to assign booking
+function assignBooking(orderId) {
+    if (!confirm('Are you sure you want to assign this booking?')) {
+        return;
+    }
+
+    fetch(`http://localhost:8080/api/bookings/assign/${orderId}`, {
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Booking assigned successfully') {
+            alert('Booking assigned successfully');
+            fetchPendingBookings(); // Refresh the pending bookings table
+            fetchBookings(); // Refresh the main bookings table
+        } else {
+            alert(data.message || 'Failed to assign booking');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to assign booking');
+    });
+}
+
 function fetchBookings() {
     fetch('http://localhost:8080/api/bookings/all', {
         method: 'GET',
@@ -292,6 +368,20 @@ function fetchBookings() {
 
         data.bookings.forEach(booking => {
             const row = document.createElement('tr');
+
+            // Get status icon based on booking status
+            const getStatusIcon = (status) => {
+                switch (status.toUpperCase()) {
+                    case 'PENDING':
+                        return '<i class="fas fa-clock" title="Pending" style="color: #ffc107;"></i>';
+                    case 'APPROVED':
+                        return '<i class="fas fa-check-circle" title="Approved" style="color:rgb(188, 230, 198);"></i>';
+                    case 'COMPLETED':
+                        return '<i class="fas fa-check-double" title="Completed" style="color: #198754;"></i>';
+                    default:
+                        return '<i class="fas fa-question-circle" title="Unknown" style="color: #6c757d;"></i>';
+                }
+            };
             
             // Format date
             const bookingDate = new Date(booking.bookingDate).toLocaleDateString();
@@ -308,7 +398,7 @@ function fetchBookings() {
                 <td data-th="Pickup Time">${booking.pickupTime}</td>
                 <td data-th="Vehicle">${booking.vehicleName}</td>
                 <td data-th="Total Cost">$${booking.totalCost}</td>
-                <td data-th="cancel">
+                <td data-th="cancel"> ${getStatusIcon(booking.status)}
                     <button onclick="cancelBooking('${booking.orderId}')" class="cancel-btn">
                         <i class="fas fa-times"></i> Cancel
                     </button>
@@ -320,6 +410,217 @@ function fetchBookings() {
     })
     .catch(error => {
         console.error('Error fetching bookings:', error);
+    });
+}
+
+function fetchVehicleTypes() {
+    fetch('http://localhost:8080/api/vehicles/types', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const typeSelect = document.getElementById('vehicleType');
+        typeSelect.innerHTML = '<option value="">Select Type</option>';
+        
+        if (data.types && Array.isArray(data.types)) {
+            data.types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeSelect.appendChild(option);
+            });
+        }
+    })
+    .catch(error => console.error('Error fetching vehicle types:', error));
+}
+
+function handleDriverSearch(event) {
+    const searchTerm = event.target.value;
+    const suggestionsDiv = document.getElementById('driverSuggestions');
+    
+    clearTimeout(searchTimeout);
+    
+    if (searchTerm.length < 2) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+
+    searchTimeout = setTimeout(() => {
+        fetch('http://localhost:8080/api/auth/search-drivers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                searchTerm: searchTerm
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.drivers && data.drivers.length > 0) {
+                suggestionsDiv.innerHTML = '';
+                data.drivers.forEach(driver => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    const highlightedEmail = highlightMatch(driver.email, searchTerm);
+                    div.innerHTML = `
+                        <div class="email">${highlightedEmail}</div>
+                        <div class="username">${driver.username}</div>
+                    `;
+                    div.onclick = () => selectDriver(driver.email);
+                    suggestionsDiv.appendChild(div);
+                });
+                suggestionsDiv.style.display = 'block';
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            suggestionsDiv.style.display = 'none';
+        });
+    }, 300);
+}
+
+function selectDriver(email) {
+    document.getElementById('driverEmail').value = email;
+    document.getElementById('driverSuggestions').style.display = 'none';
+}
+
+
+function fetchVehicles() {
+    fetch('http://localhost:8080/api/vehicles', {
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch vehicles');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const tableBody = document.getElementById('vehicleTableBody');
+        tableBody.innerHTML = '';
+
+        if (data.vehicles && Array.isArray(data.vehicles)) {
+            data.vehicles.forEach(vehicle => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td data-th="ID">${vehicle.id}</td>
+                    <td data-th="Name">${vehicle.name}</td>
+                    <td data-th="Type">${vehicle.type}</td>
+                    <td data-th="Price/km">$${vehicle.distancePrice}</td>
+                    <td data-th="Price/hr">$${vehicle.timePrice}</td>
+                    <td data-th="Driver">${vehicle.driverEmail || 'Not assigned'}</td>
+                    <td data-th="Action">
+                        <button onclick="deleteVehicle(${vehicle.id})" class="delete-btn">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching vehicles:', error);
+        alert('Failed to fetch vehicles. Please try again.');
+    });
+}
+
+function addVehicle() {
+    const name = document.getElementById('vehicleName').value;
+    const type = document.getElementById('vehicleType').value;
+    const distancePrice = document.getElementById('distancePrice').value;
+    const timePrice = document.getElementById('timePrice').value;
+    const driverEmail = document.getElementById('driverEmail').value;
+
+    if (!name || !type || !distancePrice || !timePrice || !driverEmail) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    const vehicle = {
+        name: name,
+        type: type,
+        distancePrice: parseFloat(distancePrice),
+        timePrice: parseFloat(timePrice),
+        driverEmail: driverEmail
+    };
+
+    fetch('http://localhost:8080/api/vehicles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(vehicle)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to add vehicle');
+        }
+        return response.json();
+    })
+    .then(() => {
+        // Clear form
+        document.getElementById('vehicleName').value = '';
+        document.getElementById('vehicleType').value = '';
+        document.getElementById('distancePrice').value = '';
+        document.getElementById('timePrice').value = '';
+        document.getElementById('driverEmail').value = '';
+        
+        // Refresh vehicle list
+        fetchVehicles();
+        alert('Vehicle added successfully');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add vehicle');
+    });
+}
+
+function fetchDrivers() {
+    fetch('http://localhost:8080/api/auth/drivers', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const driverSelect = document.getElementById('driverEmail');
+        driverSelect.innerHTML = '<option value="">Select Driver</option>';
+        
+        if (data.drivers && Array.isArray(data.drivers)) {
+            data.drivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver.email;
+                option.textContent = `${driver.email} (${driver.username})`;
+                driverSelect.appendChild(option);
+            });
+        }
+    })
+    .catch(error => console.error('Error fetching drivers:', error));
+}
+
+function deleteVehicle(id) {
+    if (!confirm('Are you sure you want to delete this vehicle?')) {
+        return;
+    }
+
+    fetch(`http://localhost:8080/api/vehicles/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete vehicle');
+        }
+        fetchVehicles();
+        alert('Vehicle deleted successfully');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to delete vehicle');
     });
 }
 

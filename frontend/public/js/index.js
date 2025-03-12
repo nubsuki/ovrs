@@ -175,7 +175,8 @@ function submitBooking() {
                 time: bookingDetails.distanceOrTime === 'time' ? parseFloat(bookingDetails.time) : 0,
                 totalCost: parseFloat(calculateCost()),
                 distancePrice: selectedCar.distancePrice,
-                timePrice: selectedCar.timePrice
+                timePrice: selectedCar.timePrice,
+                status: 'PENDING'
             };
 
             // Validate all required fields
@@ -223,7 +224,7 @@ let selectedCar = null;
 // Fetch cars by type from the backend
 function selectVehicleType(type) {
     selectedVehicleType = type;
-    fetch(`http://localhost:8080/api/vehicles/by-type?type=${type}`)
+    fetch(`http://localhost:8080/api/vehicles/by-type?type=${type}&status=available`)
         .then(response => response.json())
         .then(data => {
             const dropdown = document.getElementById('car-dropdown');

@@ -1,11 +1,9 @@
 package com.nubsuki.ovrs.controller;
 
-import com.nubsuki.ovrs.model.Booking;
-import com.nubsuki.ovrs.model.CancelledBooking;
-import com.nubsuki.ovrs.model.Role;
-import com.nubsuki.ovrs.model.User;
+import com.nubsuki.ovrs.model.*;
 import com.nubsuki.ovrs.repository.BookingRepository;
 import com.nubsuki.ovrs.repository.CancelledBookingRepository;
+import com.nubsuki.ovrs.repository.VehicleRepository;
 import com.nubsuki.ovrs.service.BookingService;
 import com.nubsuki.ovrs.util.SessionManager;
 import jakarta.servlet.http.Cookie;
@@ -16,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -32,6 +27,9 @@ public class BookingController {
 
     @Autowired
     private CancelledBookingRepository cancelledBookingRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking, HttpServletRequest request) {
@@ -54,6 +52,13 @@ public class BookingController {
         Booking savedBooking = bookingService.createBooking(booking, sessionToken);
         return ResponseEntity.ok(savedBooking);
     }
+
+    @GetMapping("/by-type")
+    public List<Vehicle> getVehiclesByType(@RequestParam String type) {
+        List<Vehicle> vehicles = vehicleRepository.findByTypeAndAvailable(type, true);
+        return vehicles;
+    }
+
     @GetMapping("/user-info")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String sessionToken = null;
@@ -272,6 +277,77 @@ public class BookingController {
 
         List<CancelledBooking> bookings = cancelledBookingRepository.findAll();
         return ResponseEntity.ok(Map.of("bookings", bookings));
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<Map<String, Object>> getPendingBookings() {
+        List<Booking> pendingBookings = bookingRepository.findByStatus("PENDING");
+        return ResponseEntity.ok(Map.of("bookings", pendingBookings));
+    }
+
+    @PostMapping("/assign/{orderId}")
+    public ResponseEntity<Map<String, Object>> assignBooking(@PathVariable String orderId) {
+        Optional<Booking> bookingOpt = bookingRepository.findByOrderId(orderId);
+
+        if (bookingOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Booking not found"));
+        }
+
+        Booking booking = bookingOpt.get();
+        booking.setStatus("APPROVED");
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok(Map.of("message", "Booking assigned successfully"));
+    }
+    @GetMapping("/driver-assignments")
+    public ResponseEntity<?> getDriverAssignments(HttpServletRequest request) {
+        // Get session token from cookie
+        String sessionToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // Get user from session
+        User user = SessionManager.getUser(sessionToken);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Not logged in"));
+        }
+
+        // Find vehicle assigned to this driver
+        Vehicle vehicle = vehicleRepository.findByDriverEmail(user.getEmail());
+        if (vehicle == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        // Get approved bookings for this vehicle
+        List<Booking> assignments = bookingRepository.findByVehicleNameAndStatus(
+                vehicle.getName(), "APPROVED");
+
+        return ResponseEntity.ok(assignments);
+    }
+
+    @PostMapping("/complete/{orderId}")
+    public ResponseEntity<?> completeBooking(@PathVariable String orderId) {
+        Optional<Booking> bookingOpt = bookingRepository.findByOrderId(orderId);
+
+        if (bookingOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Booking not found"));
+        }
+
+        Booking booking = bookingOpt.get();
+        booking.setStatus("COMPLETED");
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok(Map.of("message", "Booking marked as completed"));
     }
 
 }

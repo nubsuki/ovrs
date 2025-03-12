@@ -51,4 +51,7 @@ public class Booking {
 
     @Column(nullable = false)
     private double timePrice; // Price per hour
+
+    @Column(nullable = false)
+    private String status = "PENDING";
 }

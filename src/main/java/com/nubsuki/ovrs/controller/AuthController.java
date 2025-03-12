@@ -289,4 +289,81 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/drivers")
+    public ResponseEntity<Map<String, Object>> getDrivers(HttpServletRequest request) {
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        List<User> drivers = userRepository.findByRole(Role.DRIVER);
+        List<Map<String, String>> driverData = drivers.stream()
+                .map(driver -> {
+                    Map<String, String> data = new HashMap<>();
+                    data.put("email", driver.getEmail());
+                    data.put("username", driver.getUsername());
+                    return data;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("drivers", driverData));
+    }
+
+    @PostMapping("/search-drivers")
+    public ResponseEntity<Map<String, Object>> searchDrivers(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        // Validate admin session
+        String sessionToken = null;
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("sessionToken")) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        User adminUser = SessionManager.getUser(sessionToken);
+        if (adminUser == null || !adminUser.getRole().equals(Role.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Unauthorized access"));
+        }
+
+        String searchTerm = request.get("searchTerm");
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Search term is required"));
+        }
+
+        // Find drivers whose email contains the search term
+        List<User> drivers = userRepository.findByEmailContainingIgnoreCaseAndRole(searchTerm, Role.DRIVER);
+
+        List<Map<String, String>> driverData = drivers.stream()
+                .map(driver -> {
+                    Map<String, String> data = new HashMap<>();
+                    data.put("email", driver.getEmail());
+                    data.put("username", driver.getUsername());
+                    return data;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("drivers", driverData));
+    }
+
 }
