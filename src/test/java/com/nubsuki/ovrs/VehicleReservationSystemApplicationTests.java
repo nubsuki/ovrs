@@ -9,5 +9,4 @@ class VehicleReservationSystemApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
