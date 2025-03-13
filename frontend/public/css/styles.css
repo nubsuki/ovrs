@@ -954,7 +954,7 @@ footer {
 }
 
 .features1 {
-    display: grid;
+    display: flex;
     position: absolute;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;

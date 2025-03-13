@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchVehicleTypes();
     fetchPendingBookings();
     fetchTotalRevenue();
+    fetchTotalBookings();
+    fetchTotalVehicles();
 
     //search functionality for pending bookings
     const pendingOrderSearch = document.getElementById('pendingOrderSearch');
@@ -86,6 +88,38 @@ function fetchTotalRevenue() {
         console.error('Error fetching revenue:', error);
         const revenueElement = document.getElementById('Revenue');
         revenueElement.textContent = 'Total Revenue: Error loading';
+    });
+}
+function fetchTotalBookings() {
+    fetch('http://localhost:8080/api/bookings/all', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const bookingsElement = document.getElementById('Bookings');
+        const totalBookings = data.bookings.length;
+        bookingsElement.textContent = `Total Bookings: ${totalBookings}`;
+    })
+    .catch(error => {
+        console.error('Error fetching bookings:', error);
+        const bookingsElement = document.getElementById('Bookings');
+        bookingsElement.textContent = 'Total Bookings: Error loading';
+    });
+}
+function fetchTotalVehicles() {
+    fetch('http://localhost:8080/api/vehicles', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const vehiclesElement = document.getElementById('Vehicles');
+        const totalVehicles = data.vehicles.length;
+        vehiclesElement.textContent = `Total Vehicles: ${totalVehicles}`;
+    })
+    .catch(error => {
+        console.error('Error fetching vehicles:', error);
+        const vehiclesElement = document.getElementById('Vehicles');
+        vehiclesElement.textContent = 'Total Vehicles: Error loading';
     });
 }
 
